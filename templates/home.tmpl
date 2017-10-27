@@ -1,0 +1,56 @@
+{{define "content"}}
+  <div class="mdl-card__title">
+    <h2 class="mdl-card__title-text">Hello, {{currentUser.FirstName}}!</h2>
+  </div>
+  <div class="mdl-card__supporting-text">
+    <table class="mdl-data-table">
+      <tbody>
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric"><strong>ID:</strong></td>
+          <td class="mdl-data-table__cell--non-numeric">{{currentUser.ID}}</td>
+        </tr>
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric"><strong>Full Name:</strong></td>
+          <td class="mdl-data-table__cell--non-numeric">{{currentUser.FullName}}</td>
+        </tr>
+        {{if currentUser.TeamName}}
+          <tr>
+            <td class="mdl-data-table__cell--non-numeric"><strong>Team:</strong></td>
+            <td class="mdl-data-table__cell--non-numeric">{{currentUser.TeamName}}</td>
+          </tr>
+          {{if currentUser.TeamMembers}}
+            <tr>
+              <td class="mdl-data-table__cell--non-numeric" style="vertical-align: top;"><strong>Members:</strong></td>
+              <td class="mdl-data-table__cell--non-numeric">
+                <table class="mdl-data-table">
+                  <tbody>
+                    {{range currentUser.TeamMembers}}
+                      {{if not (eq .ID currentUser.ID)}}
+                        <tr>
+                          <td class="mdl-data-table__cell--non-numeric">{{.ID}}</td>
+                          <td class="mdl-data-table__cell--non-numeric">
+                            {{.FullName}}
+                            <br />
+                            <small>{{.Email}}</small>
+                          </td>
+                        </tr>
+                      {{end}}
+                    {{end}}
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          {{end}}
+        {{end}}
+      </tbody>
+    </table>
+    {{if feature "submissions"}}
+
+      <br />
+
+      <p>
+        Make a new <a href="/submit">submission</a>.
+      </p>
+    {{end}}
+  </div>
+{{end}}

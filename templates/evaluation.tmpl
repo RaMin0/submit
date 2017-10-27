@@ -1,0 +1,73 @@
+{{define "content"}}
+  <div class="mdl-card__title">
+    <h2 class="mdl-card__title-text">Evaluation</h2>
+  </div>
+  <div class="mdl-card__supporting-text">
+    {{if not (empty .Flash)}}
+      <p class="mdl-color-text--pink">{{.Flash}}</p>
+    {{end}}
+
+    {{if .Reserved}}
+      <div id="slot">
+        <table class="mdl-data-table">
+          <tbody>
+            <tr>
+              <td class="mdl-data-table__cell--non-numeric"><strong>Date:</strong></td>
+              <td class="mdl-data-table__cell--non-numeric">{{.Slot.Date}}</td>
+            </tr>
+            <tr>
+              <td class="mdl-data-table__cell--non-numeric"><strong>Time:</strong></td>
+              <td class="mdl-data-table__cell--non-numeric">{{.Slot.Time}}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        {{if .Schedule}}
+          <br />
+
+          <p>
+            <a href="" id="toggle-schedule">Reserve</a> another slot.
+          </p>
+        {{end}}
+      </div>
+    {{end}}
+
+    <div id="schedule"{{if .Reserved}} class="hidden"{{end}}>
+      {{if .Reserved}}
+        <p>
+          <a href="" id="toggle-schedule">Cancel</a>
+        </p>
+      {{end}}
+      <div>
+        {{range .Schedule}}
+          {{range $i, $_ := .}}
+            {{if (eq ($i | string) "0")}}
+              </div>
+              <h3 class="mdl-typography--text-center">{{.Date}}</h3>
+              <div class="mdl-grid">
+            {{end}}
+            <div class="mdl-cell mdl-cell--6-col mdl-cell--12-col-tablet">
+              <ul class="mdl-list">
+                <li class="mdl-list__item">
+                  <span class="mdl-list__item-primary-content">
+                    {{.Time}}
+                  </span>
+                  <span class="mdl-list__item-secondary-action">
+                    <form action="/evaluation" method="POST">
+                      <input type="hidden" name="slot[id]" value="{{.ID}}">
+                      <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                        Reserve
+                      </button>
+                    </form>
+                  </span>
+                </li>
+              </ul>
+            </div>
+          {{end}}
+        {{else}}
+          <p class="mdl-color-text--pink">No free slots.</p>
+        {{end}}
+      </div>
+    </div>
+  </div>
+{{end}}

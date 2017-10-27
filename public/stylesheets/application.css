@@ -1,0 +1,47 @@
+.pull-right {
+  float: right;
+}
+
+.mdl-card {
+  width: 100%;
+}
+
+.mdl-card__supporting-text {
+  width: auto;
+}
+
+.mdl-textfield {
+  vertical-align: middle;
+}
+
+.mdl-textfield__label--enabled {
+  color: rgb(63, 81, 181) !important;
+}
+
+.mdl-textfield.mdl-textfield--small {
+  width: 160px;
+}
+
+.mdl-grid ul,
+.mdl-grid ul li {
+  margin: 0;
+  padding: 0;
+}
+
+.mdl-chip--small {
+  height: 24px;
+  line-height: 24px;
+}
+
+.mdl-chip--small .mdl-chip__contact {
+  height: 24px;
+  width: 24px;
+}
+
+.mdl-card__title .mdl-chip--small {
+  margin-left: 5px;
+}
+
+.mdl-card__title h2 + .mdl-chip--small {
+  margin-left: 10px;
+}

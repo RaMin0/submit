@@ -1,0 +1,31 @@
+{{define "content"}}
+  <div class="mdl-card__title">
+    <h2 class="mdl-card__title-text">Settings</h2>
+  </div>
+  <div class="mdl-card__supporting-text">
+    {{if not (empty .Success)}}
+      <p class="mdl-color-text--green">{{.Success}}</p>
+    {{end}}
+    {{if not (empty .Flash)}}
+      <p class="mdl-color-text--pink">{{.Flash}}</p>
+    {{end}}
+
+    <h4>Slack</h4>
+    {{if .SlackID}}
+      <p>You are on Slack as <code>{{currentUser.UserName}}</code>.</p>
+    {{else}}
+      <form action="/settings/slack" method="POST">
+        <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+          <img src="https://cdn2.iconfinder.com/data/icons/font-awesome/1792/slack-16.png" alt="" />
+          Send invitation
+        </button>
+        &nbsp;
+        <span class="mdl-color-text--pink">
+          Make sure to use
+          <strong><code>{{currentUser.UserName}}</code></strong>
+          as your username when asked.
+        </span>
+      </form>
+    {{end}}
+  </div>
+{{end}}

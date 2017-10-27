@@ -1,0 +1,49 @@
+{{define "layout"}}
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+      <title>{{submitName}}</title>
+
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+      <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+      <link rel="stylesheet" href="//code.getmdl.io/1.2.1/material.indigo-pink.min.css">
+      <link rel="stylesheet" href="//cdn.rawgit.com/miWebb/getmdl-file/master/src/css/getmdl-file.css">
+      <link rel="stylesheet" href="/stylesheets/application.css?{{md5}}">
+    </head>
+    <body>
+      <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--no-drawer-button">
+        <header class="mdl-layout__header">
+          <div class="mdl-layout__header-row">
+            <span class="mdl-layout-title">{{submitName}}</span>
+          </div>
+          {{template "layouts/nav" .}}
+        </header>
+        <main class="mdl-layout__content">
+          <div class="mdl-grid">
+            <div class="mdl-cell mdl-cell--2-col"></div>
+            <div class="mdl-cell mdl-cell--8-col">
+              <div class="mdl-card mdl-shadow--2dp">
+                {{template "content" .}}
+              </div>
+            </div>
+            <div class="mdl-cell mdl-cell--2-col"></div>
+          </div>
+        </main>
+        <footer class="mdl-mini-footer">
+          <div class="mdl-mini-footer__left-section">
+            &copy; {{now.Year}} {{submitName}}
+          </div>
+        </footer>
+      </div>
+
+      <script src="//code.getmdl.io/1.2.1/material.min.js"></script>
+      <script src="//cdn.rawgit.com/miWebb/getmdl-file/master/src/js/getmdl-file.js"></script>
+      <script src="//code.jquery.com/jquery-3.1.1.min.js"></script>
+      <script src="/javascripts/application.js?{{md5}}"></script>
+    </body>
+  </html>
+{{end}}

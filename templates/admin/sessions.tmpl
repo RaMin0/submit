@@ -1,0 +1,43 @@
+{{define "content"}}
+  <div class="mdl-card__title">
+    <h2 class="mdl-card__title-text">Sessions</h2>
+  </div>
+  <div class="mdl-card__supporting-text">
+    <table class="mdl-data-table">
+      <tbody>
+        {{range $sessionID, $_ := .Sessions}}
+          <tr>
+            <td class="mdl-data-table__cell--non-numeric">
+              <code>{{$sessionID}}</code>
+            </td>
+            <td class="mdl-data-table__cell--non-numeric">
+              {{with .User}}
+                [{{.ID}}] {{.FullName}}
+                <br />
+                <small>{{.Email}}</small>
+              {{end}}
+              <br />
+              <br />
+              <small>
+                <strong>Timestamp:</strong>
+                <br />
+                {{.Timestamp.Format "Mon Jan 2, 15:04:05"}}
+              </small>
+              <br />
+              <small>
+                <strong>History:</strong>
+                {{if .History}}
+                  <ul class="mdl-list">
+                    {{range .History}}
+                      <li><small><a href="{{.}}">{{.}}</a></small></li>
+                    {{end}}
+                  </ul>
+                {{end}}
+              </small>
+            </td>
+          </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+{{end}}

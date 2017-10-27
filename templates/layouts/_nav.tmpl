@@ -1,0 +1,40 @@
+{{define "layouts/nav"}}
+  <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
+    {{if loggedIn}}
+      <a href="/" class="mdl-layout__tab{{if ("/" | activeNav)}} is-active{{end}}">Home</a>
+      {{if feature "proposals"}}
+        <a href="/proposal" class="mdl-layout__tab{{if ("/proposal" | activeNav)}} is-active{{end}}">Proposal</a>
+      {{end}}
+      {{if feature "submissions"}}
+        <a href="/submit" class="mdl-layout__tab{{if ("/submit" | activeNav)}} is-active{{end}}">Submit</a>
+      {{end}}
+      {{if feature "evaluations"}}
+        <a href="/evaluation" class="mdl-layout__tab{{if ("/evaluation" | activeNav)}} is-active{{end}}">Evaluation</a>
+      {{end}}
+    {{end}}
+
+    <div class="mdl-layout-spacer"></div>
+
+    {{if loggedIn}}
+      {{if currentUser.Admin}}
+        <a
+          href="/admin/sessions"
+          class="mdl-layout__tab{{if ("/admin/sessions" | activeNav)}} is-active{{end}}"
+        >
+          Admin
+        </a>
+      {{end}}
+      {{if feature "settings"}}
+        <a
+          href="/settings"
+          class="mdl-layout__tab{{if or ("/settings" | activeNav) ("/settings/slack" | activeNav)}} is-active{{end}}"
+        >
+          Settings
+        </a>
+      {{end}}
+      <a href="/logout" class="mdl-layout__tab">Logout</a>
+    {{else}}
+      <a href="/login" class="mdl-layout__tab{{if ("/login" | activeNav)}} is-active{{end}}">Login</a>
+    {{end}}
+  </div>
+{{end}}
