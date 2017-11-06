@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	panicHandler = func(r *http.Request, err interface{}) { panic(err) }
+	panicHandler = func(r *http.Request, u *User, err interface{}) { panic(err) }
 )
 
 // Mux func
@@ -53,7 +53,7 @@ func Mux() http.Handler {
 }
 
 // OnPanic func
-func OnPanic(fn func(r *http.Request, err interface{})) {
+func OnPanic(fn func(*http.Request, *User, interface{})) {
 	panicHandler = fn
 }
 
@@ -61,7 +61,7 @@ func wrap(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				panicHandler(r, errors.Wrap(err, 1))
+				panicHandler(r, currentUser(r), errors.Wrap(err, 1))
 			}
 		}()
 
