@@ -97,7 +97,7 @@ func featureEnabled(name string) bool {
 }
 
 func currentSession(r *http.Request) *Session {
-	sessionCookie, err := r.Cookie(cookieName)
+	sessionCookie, err := r.Cookie(cookieName())
 	if err != nil {
 		return nil
 	}
@@ -208,21 +208,21 @@ func persistUser(w http.ResponseWriter, user *User) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    cookieName,
+		Name:    cookieName(),
 		Value:   sessionID,
 		Expires: time.Now().Add(365 * 24 * time.Hour),
 	})
 }
 
 func unpersistUser(w http.ResponseWriter, r *http.Request) {
-	sessionCookie, err := r.Cookie(cookieName)
+	sessionCookie, err := r.Cookie(cookieName())
 	if err == nil {
 		sessionID := sessionCookie.Value
 		delete(sessions, sessionID)
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    cookieName,
+		Name:    cookieName(),
 		Value:   "",
 		Expires: time.Now().Add(-1 * time.Hour),
 	})
