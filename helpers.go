@@ -160,6 +160,10 @@ func logIn(username, password string) (*User, error) {
 		return nil, fmt.Errorf("Invalid username or password")
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Failed to retrieve student data")
+	}
+
 	doc, err := goquery.NewDocumentFromResponse(resp)
 	if err != nil {
 		return nil, err
