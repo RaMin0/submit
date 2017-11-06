@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 
 	"github.com/ramin0/submit/config"
 )
@@ -19,7 +20,9 @@ func FormatTeamName(team interface{}) string {
 
 // ParseTeamName func
 func ParseTeamName(teamName string) (team int) {
-	fmt.Sscanf(teamName, config.TeamNameFormat, &team)
+	var teamString string
+	fmt.Sscanf(teamName, config.TeamNameFormat, &teamString)
+	team, _ = strconv.Atoi(teamString)
 	return
 }
 
