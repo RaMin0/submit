@@ -72,9 +72,9 @@ func SheetsUserInfoBy(field, identifier string) (map[string]string, error) {
 			"UserName":  strings.SplitN(valueRow[5].(string), "@", 2)[0],
 			"FullName":  valueRow[1].(string),
 			"Email":     valueRow[5].(string),
-			"Group":     util.FormatGroup(valueRow[2]),
+			"Group":     valueRow[2].(string),
 			"Team":      util.FormatTeamName(valueRow[3]),
-			"TeamGroup": util.FormatGroup(valueRow[4]),
+			"TeamGroup": valueRow[4].(string),
 		}
 		if userData[field] == identifier {
 			return userData, nil

@@ -8,11 +8,6 @@ import (
 	"github.com/ramin0/submit/config"
 )
 
-// FormatGroup func
-func FormatGroup(group interface{}) string {
-	return fmt.Sprintf(config.GroupFormat, group)
-}
-
 // FormatTeamName func
 func FormatTeamName(team interface{}) string {
 	return fmt.Sprintf(config.TeamNameFormat, team)

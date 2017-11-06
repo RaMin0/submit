@@ -6,7 +6,6 @@ var (
 	SubmitName         = "ACML"
 	AdminPassword      = ""
 	SubmissionDeadline = "1989-03-21T00:00:00+02:00"
-	GroupFormat        = "%2v"
 	TeamNameFormat     = "Team %2v"
 	FeaturesEnabled    = map[string]bool{}
 
