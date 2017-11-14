@@ -14,8 +14,7 @@ import (
 )
 
 var (
-	slackAdminsRegexp = regexp.MustCompile(fmt.Sprintf("(?:%s)", strings.Join(config.SlackAdmins, "|")))
-	slackIDRegexp     = regexp.MustCompile("^<@(.+)\\|.+>$")
+	slackIDRegexp = regexp.MustCompile("^<@(.+)\\|.+>$")
 )
 
 type payload struct {
@@ -120,7 +119,7 @@ func handleCommandID(e event) error {
 	}
 	slackID = slackIDRegexp.FindStringSubmatch(slackID)[1]
 
-	if !slackAdminsRegexp.MatchString(e.Command.User.ID) {
+	if !slackAdminsRegexp().MatchString(e.Command.User.ID) {
 		if slackID != e.Command.User.ID {
 			return fmt.Errorf("Unauthorized")
 		}
@@ -178,7 +177,7 @@ func handleCommandTeam(e event) error {
 		return fmt.Errorf("Missing Team ID")
 	}
 
-	if !slackAdminsRegexp.MatchString(e.Command.User.ID) {
+	if !slackAdminsRegexp().MatchString(e.Command.User.ID) {
 		info, err := slack.UsersInfo(e.Command.User.ID)
 		if err != nil {
 			return err
@@ -232,4 +231,8 @@ func handleCommandTeam(e event) error {
 	}(teamID)
 
 	return nil
+}
+
+func slackAdminsRegexp() *regexp.Regexp {
+	return regexp.MustCompile(fmt.Sprintf("(?:%s)", strings.Join(config.SlackAdmins, "|")))
 }
