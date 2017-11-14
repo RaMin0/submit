@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/go-errors/errors"
 	"github.com/ramin0/submit/config"
 	"github.com/ramin0/submit/lib/google"
 	"github.com/ramin0/submit/lib/slack"
@@ -126,17 +127,23 @@ func handleCommandID(e event) error {
 	}
 
 	go func(slackID string) {
+		defer func() {
+			if err := recover(); err != nil {
+				panicHandler(nil, nil, errors.Wrap(err, 1))
+			}
+		}()
+
 		info, err := slack.UsersInfo(slackID)
 		if err != nil {
-			return
+			panic(err)
 		}
 
 		student, err := google.SheetsUserInfoBy("Email", info[1])
 		if err != nil {
-			return
+			panic(err)
 		}
 
-		slack.WebhookResponse(e.Command.ResponseURL, map[string]interface{}{
+		if err := slack.WebhookResponse(e.Command.ResponseURL, map[string]interface{}{
 			"attachments": []interface{}{
 				map[string]interface{}{
 					"title": student["FullName"],
@@ -165,7 +172,9 @@ func handleCommandID(e event) error {
 					},
 				},
 			},
-		})
+		}); err != nil {
+			panic(err)
+		}
 	}(slackID)
 
 	return nil
@@ -193,11 +202,17 @@ func handleCommandTeam(e event) error {
 	}
 
 	go func(teamID string) {
+		defer func() {
+			if err := recover(); err != nil {
+				panicHandler(nil, nil, errors.Wrap(err, 1))
+			}
+		}()
+
 		teamName := util.FormatTeamName(teamID)
 
 		members, err := google.SheetsTeamMembers(teamName)
 		if err != nil {
-			return
+			panic(err)
 		}
 
 		fields := []map[string]interface{}{
@@ -221,13 +236,15 @@ func handleCommandTeam(e event) error {
 			})
 		}
 
-		slack.WebhookResponse(e.Command.ResponseURL, map[string]interface{}{
+		if err := slack.WebhookResponse(e.Command.ResponseURL, map[string]interface{}{
 			"attachments": []interface{}{
 				map[string]interface{}{
 					"fields": fields,
 				},
 			},
-		})
+		}); err != nil {
+			panic(err)
+		}
 	}(teamID)
 
 	return nil
