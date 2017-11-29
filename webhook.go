@@ -104,6 +104,8 @@ func handleWebhook(e event) error {
 			return handleCommandID(e)
 		case "team":
 			return handleCommandTeam(e)
+		case "proposal":
+			return handleCommandProposal(e)
 		}
 	}
 
@@ -232,6 +234,71 @@ func handleCommandTeam(e event) error {
 			fields = append(fields, map[string]interface{}{
 				"title": fmt.Sprintf("[%s] %s (%s)", m["ID"], m["FullName"], m["Group"]),
 				"value": fmt.Sprintf("%s@student.guc.edu.eg", m["UserName"]),
+				"short": false,
+			})
+		}
+
+		if err := slack.WebhookResponse(e.Command.ResponseURL, map[string]interface{}{
+			"attachments": []interface{}{
+				map[string]interface{}{
+					"fields": fields,
+				},
+			},
+		}); err != nil {
+			panic(err)
+		}
+	}(teamID)
+
+	return nil
+}
+
+func handleCommandProposal(e event) error {
+	teamID := e.Command.Text
+	if teamID == "" {
+		return fmt.Errorf("Missing Team ID")
+	}
+
+	if !slackAdminsRegexp().MatchString(e.Command.User.ID) {
+		info, err := slack.UsersInfo(e.Command.User.ID)
+		if err != nil {
+			return err
+		}
+		user, err := google.SheetsUserInfoBy("Email", info[1])
+		if err != nil {
+			return err
+		}
+
+		if util.TrimTeamName(user["Team"]) != teamID {
+			return fmt.Errorf("Unauthorized")
+		}
+	}
+
+	go func(teamID string) {
+		defer func() {
+			if err := recover(); err != nil {
+				panicHandler(nil, nil, errors.Wrap(err, 1))
+			}
+		}()
+
+		teamName := util.FormatTeamName(teamID)
+
+		proposal, err := google.SheetsTeamProposal(teamName)
+		if err != nil {
+			panic(err)
+		}
+
+		fields := []map[string]interface{}{
+			map[string]interface{}{
+				"title": "Team",
+				"value": teamName,
+				"short": true,
+			},
+		}
+
+		for _, qa := range proposal["QAs"].([][]string) {
+			fields = append(fields, map[string]interface{}{
+				"title": qa[0],
+				"value": qa[1],
 				"short": false,
 			})
 		}
