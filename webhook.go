@@ -145,7 +145,7 @@ func handleCommandID(e event) error {
 			panic(err)
 		}
 
-		if err := slack.WebhookResponse(e.Command.ResponseURL, map[string]interface{}{
+		slack.WebhookResponse(e.Command.ResponseURL, map[string]interface{}{
 			"attachments": []interface{}{
 				map[string]interface{}{
 					"title": student["FullName"],
@@ -174,9 +174,7 @@ func handleCommandID(e event) error {
 					},
 				},
 			},
-		}); err != nil {
-			panic(err)
-		}
+		})
 	}(slackID)
 
 	return nil
@@ -238,15 +236,13 @@ func handleCommandTeam(e event) error {
 			})
 		}
 
-		if err := slack.WebhookResponse(e.Command.ResponseURL, map[string]interface{}{
+		slack.WebhookResponse(e.Command.ResponseURL, map[string]interface{}{
 			"attachments": []interface{}{
 				map[string]interface{}{
 					"fields": fields,
 				},
 			},
-		}); err != nil {
-			panic(err)
-		}
+		})
 	}(teamID)
 
 	return nil
@@ -303,15 +299,13 @@ func handleCommandProposal(e event) error {
 			})
 		}
 
-		if err := slack.WebhookResponse(e.Command.ResponseURL, map[string]interface{}{
+		slack.WebhookResponse(e.Command.ResponseURL, map[string]interface{}{
 			"attachments": []interface{}{
 				map[string]interface{}{
 					"fields": fields,
 				},
 			},
-		}); err != nil {
-			panic(err)
-		}
+		})
 	}(teamID)
 
 	return nil
