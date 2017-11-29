@@ -283,10 +283,36 @@ func handleCommandProposal(e event) error {
 			panic(err)
 		}
 
+		var status string
+		if proposal["Approved"].(bool) {
+			status += ":ballot_box_with_check:"
+		}
+		if late := proposal["Late"]; late != "" {
+			if status != "" {
+				status += " "
+			}
+			switch late {
+			case "VERY":
+				for i := 1; i <= 3; i++ {
+					status += ":timer_clock:"
+				}
+			case "YES":
+				status += ":timer_clock:"
+			}
+		}
+		if status == "" {
+			status = "N/A"
+		}
+
 		fields := []map[string]interface{}{
 			map[string]interface{}{
 				"title": "Team",
 				"value": teamName,
+				"short": true,
+			},
+			map[string]interface{}{
+				"title": "Status",
+				"value": status,
 				"short": true,
 			},
 		}
@@ -295,6 +321,14 @@ func handleCommandProposal(e event) error {
 			fields = append(fields, map[string]interface{}{
 				"title": qa[0],
 				"value": qa[1],
+				"short": false,
+			})
+		}
+
+		if notes := proposal["Notes"]; notes != "" {
+			fields = append(fields, map[string]interface{}{
+				"title": "Notes",
+				"value": notes,
 				"short": false,
 			})
 		}
