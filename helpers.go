@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -21,6 +22,10 @@ import (
 	"github.com/ramin0/submit/config"
 	httpntlm "github.com/vadimi/go-http-ntlm"
 	calendar "google.golang.org/api/calendar/v3"
+)
+
+var (
+	studentApplicationNoRegexp = regexp.MustCompile("^\\d{1,}-\\d{4,5}$")
 )
 
 func render(w io.Writer, r *http.Request, t string, data interface{}) {
@@ -172,6 +177,11 @@ func logIn(username, password string) (*User, error) {
 	studentTable := doc.Find("#Table2").First()
 	studentApplicationNo := studentTable.Find("#L_StudentApplicationNo").Text()
 	studentFullName := studentTable.Find("#L_StudentFullName").Text()
+
+	if !studentApplicationNoRegexp.MatchString(studentApplicationNo) ||
+		strings.TrimSpace(studentFullName) == "" {
+		return nil, fmt.Errorf("Failed to retrieve student data")
+	}
 
 	return &User{
 		ID:       studentApplicationNo,
