@@ -20,6 +20,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/ramin0/submit/config"
+	"github.com/ramin0/submit/lib/google"
 	httpntlm "github.com/vadimi/go-http-ntlm"
 	calendar "google.golang.org/api/calendar/v3"
 )
@@ -159,15 +160,27 @@ func logIn(username, password string) (*User, error) {
 		return nil, err
 	}
 
-	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusUnauthorized {
+	switch resp.StatusCode {
+	case http.StatusUnauthorized:
 		return nil, fmt.Errorf("Invalid username or password")
+	case http.StatusOK:
+		user, err := fetchUserFromGUC(resp)
+		if err != nil {
+			return nil, err
+		}
+		user.UserName = username
+		return user, nil
+	case http.StatusServiceUnavailable:
+		if user, err := fetchUserFromSheet(username); err == nil {
+			return user, nil
+		}
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Failed to retrieve student data")
-	}
+	return nil, fmt.Errorf("Failed to retrieve student data")
+}
+
+func fetchUserFromGUC(resp *http.Response) (*User, error) {
+	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromResponse(resp)
 	if err != nil {
@@ -186,7 +199,22 @@ func logIn(username, password string) (*User, error) {
 	return &User{
 		ID:       studentApplicationNo,
 		FullName: studentFullName,
-		UserName: username,
+	}, nil
+}
+
+func fetchUserFromSheet(username string) (*User, error) {
+	userData, err := google.SheetsUserInfoBy("UserName", username)
+	if err != nil {
+		return nil, err
+	}
+
+	return &User{
+		ID:        userData["ID"],
+		UserName:  userData["UserName"],
+		FullName:  userData["FullName"],
+		group:     userData["Group"],
+		teamName:  userData["Team"],
+		teamGroup: userData["TeamGroup"],
 	}, nil
 }
 
