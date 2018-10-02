@@ -25,7 +25,7 @@ func Mux() http.Handler {
 	for _, f := range []func() (string, http.HandlerFunc){
 		root, webhook,
 		login, logout,
-		proposal, submit, evaluation,
+		grades, proposal, submit, evaluation,
 		settings, settingsSlack,
 		adminSessions,
 	} {
@@ -141,6 +141,25 @@ func logout() (string, http.HandlerFunc) {
 	return "/logout", func(w http.ResponseWriter, r *http.Request) {
 		unpersistUser(w, r)
 		http.Redirect(w, r, "/", http.StatusFound)
+	}
+}
+
+func grades() (string, http.HandlerFunc) {
+	return "/grades", func(w http.ResponseWriter, r *http.Request) {
+		if !featureEnabled("grades") {
+			http.NotFound(w, r)
+			return
+		}
+
+		if !ensureLoggedIn(w, r) {
+			return
+		}
+
+		methods, marks := currentUser(r).Grades()
+		render(w, r, "grades", map[string]interface{}{
+			"Methods": methods,
+			"Marks":   marks,
+		})
 	}
 }
 

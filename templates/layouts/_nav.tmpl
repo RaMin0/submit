@@ -2,6 +2,9 @@
   <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
     {{if loggedIn}}
       <a href="/" class="mdl-layout__tab{{if ("/" | activeNav)}} is-active{{end}}">Home</a>
+      {{if feature "grades"}}
+        <a href="/grades" class="mdl-layout__tab{{if ("/grades" | activeNav)}} is-active{{end}}">Grades</a>
+      {{end}}
       {{if feature "proposals"}}
         <a href="/proposal" class="mdl-layout__tab{{if ("/proposal" | activeNav)}} is-active{{end}}">Proposal</a>
       {{end}}

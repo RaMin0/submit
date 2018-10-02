@@ -1,0 +1,33 @@
+{{define "content"}}
+  <div class="mdl-card__title">
+    <h2 class="mdl-card__title-text">Grades</h2>
+  </div>
+  <div class="mdl-card__supporting-text">
+    {{if not (empty .Flash)}}
+      <p class="mdl-color-text--pink">{{.Flash}}</p>
+    {{end}}
+
+    <table class="mdl-data-table" style="width: 100%;">
+      <thead>
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">Assesment</th>
+          <th>Mark</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{$marks := .Marks}}
+        {{range $i, $method := .Methods}}
+          <tr>
+            <td class="mdl-data-table__cell--non-numeric">{{$method}}</td>
+            <td>
+              {{range $j, $mark := $marks}}
+                {{if eq $i $j}}
+                  {{$mark}}
+                {{end}}
+              {{end}}
+            </td>
+          </tr>
+        {{end}}
+    </table>
+  </div>
+{{end}}

@@ -12,6 +12,7 @@ import (
 const (
 	studentsCellRange = "'Students'!A:F"
 	proposalCellRange = "'Proposals'!A:H"
+	gradesCellRange   = "'Grades'!A:Z"
 )
 
 var (
@@ -115,6 +116,42 @@ func SheetsTeamMembers(teamName string) ([]map[string]string, error) {
 	}
 
 	return members, nil
+}
+
+// SheetsGrades func
+func SheetsGrades(userID string) ([]string, []string, error) {
+	service, err := sheetsService()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	valueRange, err := service.Spreadsheets.Values.Get(config.StudentsSheetID, gradesCellRange).Do()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var methods []string
+	for i, valueRow := range valueRange.Values {
+		if i == 0 {
+			for _, valueCol := range valueRow[4:] {
+				methods = append(methods, valueCol.(string))
+			}
+			continue
+		}
+
+		if valueRow[0] != userID {
+			continue
+		}
+
+		var marks []string
+		for _, valueCol := range valueRow[4:] {
+			marks = append(marks, valueCol.(string))
+		}
+
+		return methods, marks, nil
+	}
+
+	return methods, nil, fmt.Errorf("Couldn't find %s", userID)
 }
 
 // SheetsTeamProposal func

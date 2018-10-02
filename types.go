@@ -17,14 +17,16 @@ type Session struct {
 
 // User struct
 type User struct {
-	ID          string
-	UserName    string
-	FullName    string
-	group       string
-	teamName    string
-	teamGroup   string
-	teamMembers []*User
-	proposal    map[string]interface{}
+	ID            string
+	UserName      string
+	FullName      string
+	group         string
+	teamName      string
+	teamGroup     string
+	teamMembers   []*User
+	gradesMethods []string
+	gradesMarks   []string
+	proposal      map[string]interface{}
 }
 
 // FirstName func
@@ -91,6 +93,15 @@ func (user *User) TeamMembers() []*User {
 	}
 
 	return user.teamMembers
+}
+
+// Grades func
+func (user *User) Grades() ([]string, []string) {
+	if len(user.gradesMethods) == 0 {
+		user.gradesMethods, user.gradesMarks, _ = google.SheetsGrades(user.ID)
+	}
+
+	return user.gradesMethods, user.gradesMarks
 }
 
 // Proposal func
