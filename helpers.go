@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -30,8 +31,7 @@ var (
 )
 
 func render(w io.Writer, r *http.Request, t string, data interface{}) {
-	tmplDir := path.Join(rootPath(), "templates")
-	tmpl := template.New(tmplDir)
+	tmpl := template.New("templates")
 	tmpl = tmpl.Funcs(template.FuncMap{
 		"md5": func() string {
 			return time.Now().Format("20060102150405")
@@ -82,8 +82,26 @@ func render(w io.Writer, r *http.Request, t string, data interface{}) {
 			return featureEnabled(name)
 		},
 	})
-	tmpl = template.Must(tmpl.ParseFiles(fmt.Sprintf(path.Join(tmplDir, "%s.tmpl"), t)))
-	tmpl = template.Must(tmpl.ParseGlob(path.Join(tmplDir, "layouts", "*.tmpl")))
+
+	for _, templatePath := range [][]string{
+		{fmt.Sprintf("%s.tmpl", t)},
+		{"layouts", "*.tmpl"},
+	} {
+		for i := 0; ; i++ {
+			rootDir := rootPath(i)
+			if rootDir == "" {
+				break
+			}
+
+			templateFullPath := path.Join(append([]string{rootDir, "templates"}, templatePath...)...)
+			nextTmpl, err := tmpl.ParseGlob(templateFullPath)
+			if err != nil {
+				continue
+			}
+			tmpl = nextTmpl
+			break
+		}
+	}
 
 	if err := tmpl.ExecuteTemplate(w, "layout", data); err != nil {
 		panic(err)
@@ -288,15 +306,30 @@ func ensureLoggedInAdmin(w http.ResponseWriter, r *http.Request) bool {
 	return ensureLoggedIn(w, r) && currentUser(r).Admin()
 }
 
-func rootPath() string {
+func rootPath(i ...int) string {
+	var paths []string
+
+	if path, ok := os.LookupEnv("APP_ROOT_PATH"); ok {
+		paths = append(paths, path)
+	} else {
+		exe, _ := os.Executable()
+		paths = append(paths, filepath.Dir(exe))
+	}
+
 	if path, ok := os.LookupEnv("SUBMIT_ROOT_PATH"); ok {
-		return path
+		paths = append(paths, path)
 	}
 
 	if _, file, _, ok := runtime.Caller(0); ok {
-		return path.Dir(file)
+		paths = append(paths, path.Dir(file))
 	}
 
+	if len(i) == 0 {
+		i = append(i, 0)
+	}
+	if i[0] < len(paths) {
+		return paths[i[0]]
+	}
 	return ""
 }
 

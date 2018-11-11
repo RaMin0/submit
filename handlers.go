@@ -41,7 +41,7 @@ func Mux() http.Handler {
 		m.HandleFunc(pattern, wrap(fn))
 	}
 
-	publicDir := path.Join(rootPath(), "public")
+	publicDir := path.Join(rootPath(1), "public") // TODO(ramin0): un-hardcode the 1
 	public := http.FileServer(http.Dir(publicDir))
 	m.Handle("/stylesheets/", public)
 	m.Handle("/javascripts/", public)
