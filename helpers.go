@@ -30,7 +30,8 @@ var (
 	studentApplicationNoRegexp = regexp.MustCompile("^\\d{1,}-\\d{4,5}$")
 )
 
-func render(w io.Writer, r *http.Request, t string, data interface{}) {
+// Render func
+func Render(w io.Writer, r *http.Request, t string, data interface{}) {
 	tmpl := template.New("templates")
 	tmpl = tmpl.Funcs(template.FuncMap{
 		"md5": func() string {
@@ -46,7 +47,7 @@ func render(w io.Writer, r *http.Request, t string, data interface{}) {
 			return isLoggedIn(r)
 		},
 		"currentUser": func() *User {
-			return currentUser(r)
+			return CurrentUser(r)
 		},
 		"empty": func(s interface{}) bool {
 			return s == nil || s.(string) == ""
@@ -145,7 +146,8 @@ func currentSession(r *http.Request) *Session {
 	return session
 }
 
-func currentUser(r *http.Request) *User {
+// CurrentUser func
+func CurrentUser(r *http.Request) *User {
 	session := currentSession(r)
 	if session != nil {
 		return session.User
@@ -154,7 +156,7 @@ func currentUser(r *http.Request) *User {
 }
 
 func isLoggedIn(r *http.Request) bool {
-	return currentUser(r) != nil
+	return CurrentUser(r) != nil
 }
 
 func logIn(username, password string) (*User, error) {
@@ -294,7 +296,8 @@ func unpersistUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func ensureLoggedIn(w http.ResponseWriter, r *http.Request) bool {
+// EnsureLoggedIn func
+func EnsureLoggedIn(w http.ResponseWriter, r *http.Request) bool {
 	if !isLoggedIn(r) {
 		loginURL, err := url.Parse("/login")
 		if err != nil {
@@ -313,7 +316,7 @@ func ensureLoggedIn(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func ensureLoggedInAdmin(w http.ResponseWriter, r *http.Request) bool {
-	return ensureLoggedIn(w, r) && currentUser(r).Admin()
+	return EnsureLoggedIn(w, r) && CurrentUser(r).Admin()
 }
 
 func rootPath(i ...int) string {

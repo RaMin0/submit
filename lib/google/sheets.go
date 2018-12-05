@@ -19,7 +19,8 @@ var (
 	_sheetsService *sheets.Service
 )
 
-func sheetsService() (*sheets.Service, error) {
+// SheetsService func
+func SheetsService() (*sheets.Service, error) {
 	if _sheetsService == nil {
 		c, err := googleClient()
 		if err != nil {
@@ -37,7 +38,7 @@ func sheetsService() (*sheets.Service, error) {
 
 // SheetsSubmit func
 func SheetsSubmit(teamName string, url string) error {
-	service, err := sheetsService()
+	service, err := SheetsService()
 	if err != nil {
 		return err
 	}
@@ -57,7 +58,7 @@ func SheetsSubmit(teamName string, url string) error {
 
 // SheetsUserInfoBy func
 func SheetsUserInfoBy(field, identifier string) (map[string]string, error) {
-	service, err := sheetsService()
+	service, err := SheetsService()
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +88,7 @@ func SheetsUserInfoBy(field, identifier string) (map[string]string, error) {
 
 // SheetsTeamMembers func
 func SheetsTeamMembers(teamName string) ([]map[string]string, error) {
-	service, err := sheetsService()
+	service, err := SheetsService()
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +121,7 @@ func SheetsTeamMembers(teamName string) ([]map[string]string, error) {
 
 // SheetsGrades func
 func SheetsGrades(userID string) ([]string, []string, error) {
-	service, err := sheetsService()
+	service, err := SheetsService()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -156,7 +157,7 @@ func SheetsGrades(userID string) ([]string, []string, error) {
 
 // SheetsTeamProposal func
 func SheetsTeamProposal(teamName string) (map[string]interface{}, error) {
-	service, err := sheetsService()
+	service, err := SheetsService()
 	if err != nil {
 		return nil, err
 	}

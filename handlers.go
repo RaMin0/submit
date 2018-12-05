@@ -61,7 +61,7 @@ func wrap(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				panicHandler(r, currentUser(r), errors.Wrap(err, 1))
+				panicHandler(r, CurrentUser(r), errors.Wrap(err, 1))
 			}
 		}()
 
@@ -89,11 +89,11 @@ func root() (string, http.HandlerFunc) {
 			return
 		}
 
-		if !ensureLoggedIn(w, r) {
+		if !EnsureLoggedIn(w, r) {
 			return
 		}
 
-		render(w, r, "home", nil)
+		Render(w, r, "home", nil)
 	}
 }
 
@@ -108,7 +108,7 @@ func login() (string, http.HandlerFunc) {
 			username = strings.Split(username, "@")[0]
 
 			if username == "" || password == "" {
-				render(w, r, "login", map[string]string{
+				Render(w, r, "login", map[string]string{
 					"Flash":    "Make sure all fields are populated",
 					"Username": username,
 				})
@@ -117,7 +117,7 @@ func login() (string, http.HandlerFunc) {
 
 			user, err := logIn(username, password)
 			if err != nil {
-				render(w, r, "login", map[string]string{
+				Render(w, r, "login", map[string]string{
 					"Flash":    err.Error(),
 					"Username": username,
 				})
@@ -132,7 +132,7 @@ func login() (string, http.HandlerFunc) {
 				http.Redirect(w, r, "/", http.StatusFound)
 			}
 		} else {
-			render(w, r, "login", nil)
+			Render(w, r, "login", nil)
 		}
 	}
 }
@@ -151,12 +151,12 @@ func grades() (string, http.HandlerFunc) {
 			return
 		}
 
-		if !ensureLoggedIn(w, r) {
+		if !EnsureLoggedIn(w, r) {
 			return
 		}
 
-		methods, marks := currentUser(r).Grades()
-		render(w, r, "grades", map[string]interface{}{
+		methods, marks := CurrentUser(r).Grades()
+		Render(w, r, "grades", map[string]interface{}{
 			"Methods": methods,
 			"Marks":   marks,
 		})
@@ -170,11 +170,11 @@ func proposal() (string, http.HandlerFunc) {
 			return
 		}
 
-		if !ensureLoggedIn(w, r) {
+		if !EnsureLoggedIn(w, r) {
 			return
 		}
 
-		render(w, r, "proposal", nil)
+		Render(w, r, "proposal", nil)
 	}
 }
 
@@ -185,19 +185,19 @@ func submit() (string, http.HandlerFunc) {
 			return
 		}
 
-		if !ensureLoggedIn(w, r) {
+		if !EnsureLoggedIn(w, r) {
 			return
 		}
 
 		deadline, _ := time.Parse(time.RFC3339, config.SubmissionDeadline)
 		if time.Now().After(deadline) {
-			render(w, r, "submit", map[string]bool{"DeadlinePassed": true})
+			Render(w, r, "submit", map[string]bool{"DeadlinePassed": true})
 			return
 		}
 
 		if featureEnabled("evaluations") {
-			if slot, _ := google.CalendarTeamSlot(currentUser(r).TeamName()); slot == nil {
-				render(w, r, "submit", map[string]bool{"EvaluationMissing": true})
+			if slot, _ := google.CalendarTeamSlot(CurrentUser(r).TeamName()); slot == nil {
+				Render(w, r, "submit", map[string]bool{"EvaluationMissing": true})
 				return
 			}
 		}
@@ -234,7 +234,7 @@ func submit() (string, http.HandlerFunc) {
 
 			for _, v := range data {
 				if v == nil {
-					render(w, r, "submit", map[string]interface{}{
+					Render(w, r, "submit", map[string]interface{}{
 						"Flash": "Make sure all fields are populated",
 						"Items": config.SubmissionsItems,
 					})
@@ -251,14 +251,14 @@ func submit() (string, http.HandlerFunc) {
 				switch t {
 				case "url":
 					url := d.(string)
-					err := google.SheetsSubmit(currentUser(r).TeamName(), url)
+					err := google.SheetsSubmit(CurrentUser(r).TeamName(), url)
 					if err != nil {
 						panic(err)
 					}
 				case "file":
 					file := d.(map[string]interface{})["File"].(io.Reader)
 					filename := d.(map[string]interface{})["Filename"].(string)
-					shareURL, err := google.DriveSubmit(currentUser(r).Info(), file, filename)
+					shareURL, err := google.DriveSubmit(CurrentUser(r).Info(), file, filename)
 					if err != nil {
 						panic(err)
 					}
@@ -266,11 +266,11 @@ func submit() (string, http.HandlerFunc) {
 				}
 			}
 
-			render(w, r, "submit", renderData)
+			Render(w, r, "submit", renderData)
 			return
 		}
 
-		render(w, r, "submit", map[string]interface{}{"Items": config.SubmissionsItems})
+		Render(w, r, "submit", map[string]interface{}{"Items": config.SubmissionsItems})
 	}
 }
 
@@ -281,7 +281,7 @@ func evaluation() (string, http.HandlerFunc) {
 			return
 		}
 
-		if !ensureLoggedIn(w, r) {
+		if !EnsureLoggedIn(w, r) {
 			return
 		}
 
@@ -290,8 +290,8 @@ func evaluation() (string, http.HandlerFunc) {
 
 			slotID := strings.TrimSpace(r.FormValue("slot[id]"))
 
-			if err := google.CalendarReserveTeamSlot(currentUser(r).TeamName(), slotID); err != nil {
-				render(w, r, "evaluation", map[string]string{
+			if err := google.CalendarReserveTeamSlot(CurrentUser(r).TeamName(), slotID); err != nil {
+				Render(w, r, "evaluation", map[string]string{
 					"Flash": err.Error(),
 				})
 			} else {
@@ -301,7 +301,7 @@ func evaluation() (string, http.HandlerFunc) {
 		}
 
 		var teamSlot *Slot
-		slot, err := google.CalendarTeamSlot(currentUser(r).TeamName())
+		slot, err := google.CalendarTeamSlot(CurrentUser(r).TeamName())
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -326,7 +326,7 @@ func evaluation() (string, http.HandlerFunc) {
 			schedule[currentDay] = append(schedule[currentDay], newSlot)
 		}
 
-		render(w, r, "evaluation", map[string]interface{}{
+		Render(w, r, "evaluation", map[string]interface{}{
 			"Schedule": schedule,
 			"Reserved": teamSlot != nil,
 			"Slot":     teamSlot,
@@ -341,11 +341,11 @@ func settings() (string, http.HandlerFunc) {
 			return
 		}
 
-		if !ensureLoggedIn(w, r) {
+		if !EnsureLoggedIn(w, r) {
 			return
 		}
 
-		render(w, r, "settings", map[string]interface{}{
+		Render(w, r, "settings", map[string]interface{}{
 			"SlackID": "",
 		})
 	}
@@ -358,11 +358,11 @@ func settingsSlack() (string, http.HandlerFunc) {
 			return
 		}
 
-		if !ensureLoggedIn(w, r) {
+		if !EnsureLoggedIn(w, r) {
 			return
 		}
 
-		user := currentUser(r)
+		user := CurrentUser(r)
 
 		success := fmt.Sprintf("Check your GUC email <code>%s</code> for an invitation.", user.Email())
 		flash := ""
@@ -376,7 +376,7 @@ func settingsSlack() (string, http.HandlerFunc) {
 			success, flash = "", fmt.Sprintf("Could not send invitation: %v", err)
 		}
 
-		render(w, r, "settings", map[string]string{
+		Render(w, r, "settings", map[string]string{
 			"Success": success,
 			"Flash":   flash,
 		})
@@ -389,7 +389,7 @@ func adminSessions() (string, http.HandlerFunc) {
 			return
 		}
 
-		render(w, r, "admin/sessions", map[string]interface{}{
+		Render(w, r, "admin/sessions", map[string]interface{}{
 			"Sessions": sessions,
 		})
 	}
