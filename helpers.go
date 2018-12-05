@@ -83,9 +83,10 @@ func render(w io.Writer, r *http.Request, t string, data interface{}) {
 		},
 	})
 
+	parsedTemplates := map[string]bool{}
 	for _, templatePath := range [][]string{
-		{fmt.Sprintf("%s.tmpl", t)},
 		{"layouts", "*.tmpl"},
+		{fmt.Sprintf("%s.tmpl", t)},
 	} {
 		for i := 0; ; i++ {
 			rootDir := rootPath(i)
@@ -93,13 +94,22 @@ func render(w io.Writer, r *http.Request, t string, data interface{}) {
 				break
 			}
 
-			templateFullPath := path.Join(append([]string{rootDir, "templates"}, templatePath...)...)
-			nextTmpl, err := tmpl.ParseGlob(templateFullPath)
-			if err != nil {
-				continue
+			templatesDir := path.Join(rootDir, "templates")
+			templateFullPath := path.Join(append([]string{templatesDir}, templatePath...)...)
+			fns, _ := filepath.Glob(templateFullPath)
+			for _, fn := range fns {
+				tfn := strings.TrimPrefix(fn, templatesDir)[1:]
+				if parsedTemplates[tfn] {
+					continue
+				}
+				parsedTemplates[tfn] = true
+
+				nextTmpl, err := tmpl.ParseFiles(fn)
+				if err != nil {
+					continue
+				}
+				tmpl = nextTmpl
 			}
-			tmpl = nextTmpl
-			break
 		}
 	}
 
